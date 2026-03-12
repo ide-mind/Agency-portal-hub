@@ -1,0 +1,353 @@
+import React, { useMemo } from 'react';
+import { ClickUpTask, ClickUpStatus } from '../types';
+import { Check, LayoutList, CircleDashed } from 'lucide-react';
+
+interface TaskBoardProps {
+  tasks: ClickUpTask[];
+}
+
+// Configuration for the 5 fixed stages
+const STAGES = [
+  { 
+    id: 'planning', 
+    label: 'Planning', 
+    number: '01', 
+    keywords: ['planning', 'strategy', 'discovery'], 
+  },
+  { 
+    id: 'design', 
+    label: 'Design', 
+    number: '02', 
+    keywords: ['design', 'wireframe', 'ui', 'ux'], 
+  },
+  { 
+    id: 'revision', 
+    label: 'Revision', 
+    number: '03', 
+    keywords: ['revision', 'feedback', 'review'], 
+  },
+  { 
+    id: 'testing', 
+    label: 'Testing', 
+    number: '04', 
+    keywords: ['testing', 'qa', 'staging'], 
+  },
+  { 
+    id: 'handoff', 
+    label: 'Handoff', 
+    number: '05', 
+    keywords: ['handoff', 'delivery', 'live', 'prod'], 
+  }
+];
+
+export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
+  
+  // Helper to safely extract parent ID
+  const getParentId = (task: ClickUpTask): string | null => {
+    if (!task.parent) return null;
+    if (typeof task.parent === 'object' && (task.parent as any).id) {
+      return (task.parent as any).id;
+    }
+    return String(task.parent);
+  };
+
+  // Helper status checkers
+  const isStatusDone = (status?: string) => ['complete', 'closed', 'done', 'finished'].includes(status?.toLowerCase() || '');
+  const isStatusInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development'].includes(status?.toLowerCase() || '');
+
+  // Group tasks logic
+  const { boardData, backlog } = useMemo(() => {
+    // 1. Build Parent-Child Map
+    const tasksById = new Map<string, ClickUpTask>();
+    const childrenByParent = new Map<string, ClickUpTask[]>();
+    const roots: ClickUpTask[] = [];
+
+    tasks.forEach(t => tasksById.set(t.id, t));
+
+    tasks.forEach(t => {
+      const pId = getParentId(t);
+      if (pId && tasksById.has(pId)) {
+        if (!childrenByParent.has(pId)) childrenByParent.set(pId, []);
+        childrenByParent.get(pId)!.push(t);
+      } else {
+        roots.push(t);
+      }
+    });
+
+    // 2. Initialize Buckets
+    const buckets = STAGES.map(stage => ({
+      ...stage,
+      items: [] as ClickUpTask[],
+      mainTaskStatus: null as ClickUpStatus | null
+    }));
+    
+    const backlogTasks: ClickUpTask[] = [];
+
+    // 3. Assign Roots + Descendants to Stages
+    roots.forEach(root => {
+      const statusLower = root.status.status.toLowerCase();
+      const nameLower = root.name.toLowerCase();
+      
+      let targetBucketIndex = -1;
+      
+      // Find matching bucket based on Root Task
+      for (let i = 0; i < buckets.length; i++) {
+        if (buckets[i].keywords.some(k => statusLower.includes(k) || nameLower.includes(k))) {
+          targetBucketIndex = i;
+          break;
+        }
+      }
+
+      // Gather the whole family (Root + Children)
+      const family: ClickUpTask[] = [];
+      family.push(root);
+      if (childrenByParent.has(root.id)) {
+        family.push(...childrenByParent.get(root.id)!);
+      }
+
+      if (targetBucketIndex !== -1) {
+        buckets[targetBucketIndex].items.push(...family);
+      } else {
+        backlogTasks.push(...family);
+      }
+    });
+
+    // 4. Identify Main Task Status & Cleanup
+    const finalBuckets = buckets.map(bucket => {
+        // Try to identify the "Main Task" / Header Task
+        // Priority: Exact match name -> Contains name
+        const mainTask = bucket.items.find(t => 
+             t.name.trim().toLowerCase() === bucket.label.toLowerCase()
+        );
+        
+        let processedItems = bucket.items;
+        let status = null;
+
+        if (mainTask) {
+            status = mainTask.status;
+            // Filter out the main task from the checklist
+            processedItems = bucket.items.filter(t => t.id !== mainTask.id);
+        } else {
+            // Fallback: If no exact main task found, check for loose match
+            const looseMatch = bucket.items.find(t => t.name.toLowerCase().includes(bucket.label.toLowerCase()));
+            if (looseMatch) status = looseMatch.status;
+        }
+
+        return { 
+            ...bucket, 
+            items: processedItems,
+            mainTaskStatus: status 
+        };
+    });
+
+    return { boardData: finalBuckets, backlog: backlogTasks };
+  }, [tasks]);
+
+  const renderTaskRow = (task: ClickUpTask, isParentDone: boolean, isGrayMode: boolean) => {
+    // If parent is visually done, subtasks appear done
+    const realDone = isStatusDone(task.status.status);
+    const visualDone = isParentDone || realDone;
+    
+    const statusColor = task.status.color || '#52525b';
+    
+    // Determine text/dot color based on status
+    // If 'to do', usually gray. If active, use color.
+    const isToDo = ['to do', 'open', 'pending'].includes(task.status.status.toLowerCase());
+    const dotColor = visualDone ? '#52525b' : (isToDo ? '#71717a' : statusColor);
+    const textColor = visualDone ? '#52525b' : (isToDo ? '#a1a1aa' : statusColor);
+
+    return (
+      <div key={task.id} className="flex items-center justify-between group mb-4 last:mb-0 relative z-10 py-1">
+         <div className="flex items-center gap-4 min-w-0">
+            {/* Custom Checkbox */}
+            <div 
+                className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all duration-300 shrink-0 ${
+                   visualDone 
+                     ? 'bg-zinc-800 border-transparent' 
+                     : `bg-transparent ${isGrayMode ? 'border-zinc-700' : 'border-zinc-700 group-hover:border-zinc-500'}`
+                }`}
+            >
+               {visualDone && <Check className="w-3.5 h-3.5 text-zinc-500" />}
+            </div>
+
+            {/* Task Name */}
+            <a 
+              href={task.url}
+              target="_blank"
+              rel="noreferrer"
+              className={`text-sm truncate transition-colors ${
+                visualDone 
+                  ? 'text-zinc-600 line-through font-normal' 
+                  : `font-medium ${isGrayMode ? 'text-zinc-400' : 'text-zinc-200 group-hover:text-white'}`
+              }`}
+            >
+              {task.name}
+            </a>
+         </div>
+
+         {/* Right Side Status - Subtask Style (Dark Pill with Dot) */}
+         <div className="flex items-center gap-3 shrink-0 ml-4">
+             {/* Assignee Avatar */}
+             {!visualDone && task.assignees.length > 0 && (
+                <div className="flex -space-x-2">
+                   {task.assignees.slice(0, 2).map(u => (
+                      <div key={u.id} className="w-6 h-6 rounded-full bg-zinc-800 ring-2 ring-[#111111] flex items-center justify-center text-[9px] font-bold text-zinc-400">
+                         {u.username.charAt(0)}
+                      </div>
+                   ))}
+                </div>
+             )}
+
+             {/* Status Badge */}
+             <div 
+               className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 transition-all duration-300 ${
+                 visualDone 
+                    ? 'bg-transparent border-transparent opacity-50' 
+                    : 'bg-[#121212] border-[#27272a]'
+               }`}
+             >
+                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dotColor }}></div>
+                <span 
+                    className="text-[9px] font-bold uppercase tracking-wider"
+                    style={{ color: textColor }}
+                >
+                    {task.status.status}
+                </span>
+             </div>
+         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-12">
+      {/* Main Stages Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {boardData.map((stage) => {
+          const mainStatus = stage.mainTaskStatus;
+          const statusStr = mainStatus?.status || 'Pending';
+          const statusColor = mainStatus?.color || '#52525b';
+          
+          const inProgress = isStatusInProgress(statusStr);
+          const isDone = isStatusDone(statusStr);
+          
+          // Card is Orange ONLY when In Progress
+          // Gray if To Do or Done
+          const isOrangeTheme = inProgress;
+          const accentColor = isOrangeTheme ? '#f97316' : '#52525b'; 
+          
+          const containerClasses = isOrangeTheme
+            ? "bg-[#0f0f0f] border border-orange-500/20 shadow-[0_10px_40px_-15px_rgba(249,115,22,0.1)]"
+            : "bg-[#0f0f0f] border border-zinc-800/60 hover:border-zinc-700"; 
+
+          return (
+            <div 
+              key={stage.id} 
+              className={`${containerClasses} p-8 rounded-2xl relative overflow-hidden group transition-all duration-500 flex flex-col min-h-[360px]`}
+            >
+              {/* Interactive Gradient - Only for Orange Theme */}
+              {isOrangeTheme && (
+                 <>
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/[0.03] to-transparent opacity-100 pointer-events-none"></div>
+                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-orange-600/10 rounded-full blur-[60px] pointer-events-none"></div>
+                 </>
+              )}
+
+              {/* Header Layout */}
+              <div className="flex flex-col mb-10 relative z-10">
+                  <div className="flex justify-between items-start">
+                      {/* Big Number Top Left */}
+                      <span className="text-6xl font-bold tracking-tighter leading-none select-none transition-colors duration-500" style={{ color: accentColor, opacity: isOrangeTheme ? 0.2 : 0.05 }}>
+                          {stage.number}
+                      </span>
+
+                      {/* Top Right: Status Pill (Main Task Style) */}
+                      <div 
+                        className={`px-4 py-1.5 rounded-full border flex items-center gap-2 shadow-lg transition-all duration-500 bg-[#09090b]`}
+                        style={{
+                            borderColor: isDone ? '#27272a' : (statusColor),
+                            boxShadow: isDone ? 'none' : `0 0 15px -8px ${statusColor}40`
+                        }}
+                      >
+                         <div className={`w-2 h-2 rounded-full`} style={{ backgroundColor: isDone ? '#52525b' : statusColor }}></div>
+                         <span 
+                            className={`text-[10px] font-bold uppercase tracking-wider`}
+                            style={{ color: isDone ? '#52525b' : statusColor }}
+                         >
+                            {statusStr}
+                         </span>
+                      </div>
+                  </div>
+
+                  {/* Label */}
+                  <div className="flex items-center gap-4 mt-6">
+                      <div className={`w-0.5 h-6 ${isOrangeTheme ? 'bg-orange-500' : 'bg-zinc-700'}`}></div>
+                      <h3 className={`text-lg font-bold uppercase tracking-widest transition-colors duration-300 ${isOrangeTheme ? 'text-white' : 'text-zinc-500'}`}>
+                          {stage.label}
+                      </h3>
+                  </div>
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10 flex-1">
+                 {stage.items.map(item => renderTaskRow(item, isDone, !isOrangeTheme))}
+                 
+                 {stage.items.length === 0 && (
+                   <div className="h-full flex items-center justify-center -mt-8">
+                      <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-800">No active tasks</span>
+                   </div>
+                 )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Backlog Section */}
+      {backlog.length > 0 && (
+        <div className="border-t border-white/5 pt-12 animate-in fade-in duration-700">
+           <div className="flex items-center gap-4 mb-8">
+              <div className="p-2.5 bg-[#141414] rounded-lg border border-white/5">
+                 <LayoutList className="w-4 h-4 text-zinc-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-zinc-300 uppercase tracking-widest">Backlog</h3>
+                <p className="text-[11px] text-zinc-500 mt-1">
+                   {backlog.length} unassigned tasks
+                </p>
+              </div>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {backlog.map(item => {
+                 const isDone = isStatusDone(item.status.status);
+                 const statusColor = item.status.color || '#52525b';
+                 return (
+                   <div key={item.id} className="bg-[#0f0f0f] border border-white/5 hover:border-zinc-700 p-5 rounded-xl transition-all group flex items-start gap-4">
+                      <div className={`mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center ${isDone ? 'bg-zinc-800 border-transparent' : 'border-zinc-800'}`}>
+                          {isDone && <Check className="w-3 h-3 text-zinc-500" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2">
+                                <CircleDashed className="w-3 h-3 text-zinc-600" />
+                                {/* Backlog also gets the nice badge */}
+                                <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-[#121212] border border-zinc-800">
+                                    <div className="w-1 h-1 rounded-full" style={{ backgroundColor: statusColor }}></div>
+                                    <span className="text-[8px] font-bold uppercase tracking-wider text-zinc-500">{item.status.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href={item.url} target="_blank" rel="noreferrer" className={`text-sm font-medium block mb-1 truncate ${isDone ? 'text-zinc-600 line-through' : 'text-zinc-300 group-hover:text-white'}`}>
+                            {item.name}
+                        </a>
+                      </div>
+                   </div>
+                 )
+              })}
+           </div>
+        </div>
+      )}
+    </div>
+  );
+};
