@@ -16,7 +16,9 @@ import {
   Bell,
   Filter,
   ArrowUpRight,
-  MoreHorizontal
+  MoreHorizontal,
+  Menu,
+  Command
 } from 'lucide-react';
 
 const StatusDonut = ({ data, total }: { data: { name: string; value: number; fill: string }[], total: number }) => {
@@ -136,7 +138,7 @@ const App: React.FC = () => {
   const [aiSummary, setAiSummary] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }));
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     // Just refresh date occasionally
@@ -208,6 +210,9 @@ const App: React.FC = () => {
     setLoadingSummary(true);
     setAiSummary('');
     setError(null);
+    if (window.innerWidth < 768) {
+      setIsSidebarCollapsed(true);
+    }
 
     try {
       const fetchedTasks = await fetchTasks(listId, config.clickUpApiKey);
@@ -243,6 +248,14 @@ const App: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-orange-500/30">
       
+      {/* Mobile Overlay */}
+      {!isSidebarCollapsed && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsSidebarCollapsed(true)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <Sidebar 
         config={config}
@@ -257,7 +270,7 @@ const App: React.FC = () => {
       />
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'ml-20' : 'ml-72'} p-8 lg:p-12 overflow-y-auto min-h-screen relative flex flex-col`}>
+      <main className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-72'} p-4 md:p-8 lg:p-12 overflow-y-auto min-h-screen relative flex flex-col w-full`}>
         {/* Background Effects */}
         <div className="fixed inset-0 bg-[#0a0a0a] -z-20"></div>
         {/* Subtle grid instead of high contrast */}
@@ -267,6 +280,17 @@ const App: React.FC = () => {
         {/* Header System */}
         <header className="mb-12 relative z-10 shrink-0">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+             <div className="w-full flex items-center justify-between md:hidden mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                    <Command size={16} className="text-white" />
+                  </div>
+                  <span className="font-bold text-white text-sm tracking-wider uppercase">Nexus<span className="text-zinc-500">Intel</span></span>
+                </div>
+                <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="p-2 text-zinc-400 hover:text-white">
+                  <Menu size={24} />
+                </button>
+             </div>
              <div className="relative w-full md:w-[400px]">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                <input 
@@ -289,7 +313,7 @@ const App: React.FC = () => {
              </div>
           </div>
           
-          <div className="flex items-end justify-between">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
                <div className="flex items-center gap-2 mb-2">
                  <h2 className="text-zinc-500 text-[11px] font-semibold uppercase tracking-widest">

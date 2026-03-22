@@ -49,13 +49,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside 
       className={`h-screen bg-[#0a0a0a]/95 backdrop-blur-xl border-r border-white/5 flex flex-col fixed left-0 top-0 z-50 transition-all duration-300 ${
-        isCollapsed ? 'w-20' : 'w-72'
+        isCollapsed ? '-translate-x-full md:translate-x-0 md:w-20' : 'translate-x-0 w-72'
       }`}
     >
       {/* Toggle Button */}
       <button 
         onClick={onToggleCollapse}
-        className="absolute -right-3 top-10 w-6 h-6 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center text-zinc-500 hover:text-white hover:bg-orange-500 transition-all z-50 shadow-lg"
+        className="hidden md:flex absolute -right-3 top-10 w-6 h-6 bg-[#1a1a1a] border border-white/10 rounded-full items-center justify-center text-zinc-500 hover:text-white hover:bg-orange-500 transition-all z-50 shadow-lg"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
