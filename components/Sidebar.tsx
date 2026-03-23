@@ -12,7 +12,8 @@ import {
   Clock,
   BarChart3,
   ChevronLeft,
-  Command
+  Command,
+  Globe
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,6 +26,8 @@ interface SidebarProps {
   onFetchLists: () => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
+  activeView: 'dashboard' | 'external';
+  onSelectExternal: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -36,7 +39,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isLoadingLists,
   onFetchLists,
   isCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  activeView,
+  onSelectExternal
 }) => {
   const [isTargetIndexOpen, setIsTargetIndexOpen] = useState(true);
   const [isConfigMatrixOpen, setIsConfigMatrixOpen] = useState(true);
@@ -124,7 +129,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         key={list.id}
                         onClick={() => onSelectList(list.id)}
                         className={`group w-full text-left px-4 py-3 rounded-lg text-xs font-medium transition-all relative overflow-hidden ${
-                          selectedListId === list.id 
+                          selectedListId === list.id && activeView === 'dashboard'
                             ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' 
                             : 'text-zinc-400 border border-transparent hover:bg-white/[0.03] hover:text-zinc-200'
                         }`}
@@ -144,6 +149,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <p className="text-zinc-600 text-[10px]">No projects found</p>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Integrations */}
+            <div className="animate-in fade-in slide-in-from-left-2 duration-300 delay-75">
+              <div className="flex items-center justify-between mb-4 px-2 select-none">
+                 <h2 className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
+                   Integrations
+                 </h2>
+              </div>
+              <div className="space-y-1">
+                <button
+                  onClick={onSelectExternal}
+                  className={`group w-full text-left px-4 py-3 rounded-lg text-xs font-medium transition-all relative overflow-hidden ${
+                    activeView === 'external' 
+                      ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' 
+                      : 'text-zinc-400 border border-transparent hover:bg-white/[0.03] hover:text-zinc-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 relative z-10">
+                    <Globe className="w-4 h-4" />
+                    <span className="truncate tracking-wide">Zite Website</span>
+                  </div>
+                </button>
               </div>
             </div>
 

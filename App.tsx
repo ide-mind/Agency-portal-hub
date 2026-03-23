@@ -139,6 +139,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }));
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth < 768);
+  const [activeView, setActiveView] = useState<'dashboard' | 'external'>('dashboard');
 
   useEffect(() => {
     // Just refresh date occasionally
@@ -205,6 +206,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleSelectList = async (listId: string) => {
+    setActiveView('dashboard');
     setSelectedListId(listId);
     setLoadingTasks(true);
     setLoadingSummary(true);
@@ -267,6 +269,11 @@ const App: React.FC = () => {
         onFetchLists={handleFetchLists}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        activeView={activeView}
+        onSelectExternal={() => {
+          setActiveView('external');
+          if (window.innerWidth < 768) setIsSidebarCollapsed(true);
+        }}
       />
 
       {/* Main Content */}
@@ -317,7 +324,7 @@ const App: React.FC = () => {
             <div>
                <div className="flex items-center gap-2 mb-2">
                  <h2 className="text-zinc-500 text-[11px] font-semibold uppercase tracking-widest">
-                  Project Dashboard
+                  {activeView === 'external' ? 'Integration' : 'Project Dashboard'}
                  </h2>
                  {error && (
                     <span className="text-red-400 text-[10px] font-medium flex items-center gap-1 bg-red-500/10 px-2 py-0.5 rounded-full">
@@ -326,7 +333,7 @@ const App: React.FC = () => {
                  )}
                </div>
               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-none">
-                {currentListName}
+                {activeView === 'external' ? 'Zite Website' : currentListName}
               </h1>
             </div>
             <div className="flex gap-2">
@@ -342,8 +349,18 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 relative z-10">
-          {selectedListId ? (
+        <div className="flex-1 relative z-10 flex flex-col">
+          {activeView === 'external' ? (
+            <div className="flex-1 w-full rounded-2xl overflow-hidden border border-white/10 bg-white min-h-[70vh] shadow-2xl">
+              <iframe 
+                src="https://6f3oseamt6.zite.so" 
+                className="w-full h-full min-h-[70vh] border-0"
+                title="Zite Integration"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : selectedListId ? (
             <div className="space-y-8">
               
               {/* 1. Top Metrics Grid */}
