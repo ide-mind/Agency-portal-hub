@@ -7,16 +7,8 @@ const BASE_URL = 'https://api.clickup.com/api/v2';
 // If direct browser access fails, this logic remains valid but requires a proxy middleware.
 
 export const fetchLists = async (folderId: string, apiKey: string): Promise<ClickUpList[]> => {
-  if (!folderId || !apiKey) return [];
-
   try {
-    const response = await fetch(`${BASE_URL}/folder/${folderId}/list`, {
-      method: 'GET',
-      headers: {
-        'Authorization': apiKey,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await fetch(`/api/clickup/lists`);
 
     if (!response.ok) {
       throw new Error(`ClickUp API Error: ${response.statusText}`);
@@ -31,17 +23,8 @@ export const fetchLists = async (folderId: string, apiKey: string): Promise<Clic
 };
 
 export const fetchTasks = async (listId: string, apiKey: string): Promise<ClickUpTask[]> => {
-  if (!listId || !apiKey) return [];
-
   try {
-    // Fetching page 0, include subtasks enabled via subtasks=true
-    const response = await fetch(`${BASE_URL}/list/${listId}/task?page=0&include_closed=true&subtasks=true`, {
-      method: 'GET',
-      headers: {
-        'Authorization': apiKey,
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await fetch(`/api/clickup/tasks/${listId}`);
 
     if (!response.ok) {
       throw new Error(`ClickUp API Error: ${response.statusText}`);

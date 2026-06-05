@@ -191,7 +191,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
              {!visualDone && task.assignees.length > 0 && (
                 <div className="flex -space-x-2">
                    {task.assignees.slice(0, 2).map(u => (
-                      <div key={u.id} className="w-6 h-6 rounded-full bg-zinc-800 ring-2 ring-[#111111] flex items-center justify-center text-[9px] font-bold text-zinc-400">
+                      <div key={u.id} className="w-6 h-6 rounded-full bg-zinc-800 ring-2 ring-[#070707] flex items-center justify-center text-[9px] font-bold text-zinc-400">
                          {u.username.charAt(0)}
                       </div>
                    ))}
@@ -203,7 +203,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
                className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 transition-all duration-300 ${
                  visualDone 
                     ? 'bg-transparent border-transparent opacity-50' 
-                    : 'bg-[#121212] border-[#27272a]'
+                    : 'bg-[#0a0a0a] border-[#27272a]'
                }`}
              >
                 <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dotColor }}></div>
@@ -234,22 +234,22 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
           // Card is Orange ONLY when In Progress
           // Gray if To Do or Done
           const isOrangeTheme = inProgress;
-          const accentColor = isOrangeTheme ? '#f97316' : '#52525b'; 
+          const accentColor = isOrangeTheme ? '#ff4d00' : '#52525b'; 
           
           const containerClasses = isOrangeTheme
-            ? "bg-[#0f0f0f] border border-orange-500/20 shadow-[0_10px_40px_-15px_rgba(249,115,22,0.1)]"
-            : "bg-[#0f0f0f] border border-zinc-800/60 hover:border-zinc-700"; 
+            ? "bg-[#070707] border border-[#ff4d00]/20 shadow-[0_10px_40px_-15px_rgba(255,77,0,0.1)]"
+            : "bg-[#070707] border border-zinc-800/60 hover:border-zinc-700"; 
 
           return (
             <div 
               key={stage.id} 
-              className={`${containerClasses} p-8 rounded-2xl relative overflow-hidden group transition-all duration-500 flex flex-col min-h-[360px]`}
+              className={`${containerClasses} p-8 rounded-lg relative overflow-hidden group transition-all duration-500 flex flex-col min-h-[360px]`}
             >
               {/* Interactive Gradient - Only for Orange Theme */}
               {isOrangeTheme && (
                  <>
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/[0.03] to-transparent opacity-100 pointer-events-none"></div>
-                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-orange-600/10 rounded-full blur-[60px] pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff4d00]/[0.03] to-transparent opacity-100 pointer-events-none"></div>
+                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#ff4d00]/10 rounded-full blur-[60px] pointer-events-none"></div>
                  </>
               )}
 
@@ -257,13 +257,13 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
               <div className="flex flex-col mb-10 relative z-10">
                   <div className="flex justify-between items-start">
                       {/* Big Number Top Left */}
-                      <span className="text-6xl font-bold tracking-tighter leading-none select-none transition-colors duration-500" style={{ color: accentColor, opacity: isOrangeTheme ? 0.2 : 0.05 }}>
+                      <span className="text-6xl font-mono font-bold tracking-tighter leading-none select-none transition-colors duration-500" style={{ color: accentColor, opacity: isOrangeTheme ? 0.2 : 0.05 }}>
                           {stage.number}
                       </span>
 
                       {/* Top Right: Status Pill (Main Task Style) */}
                       <div 
-                        className={`px-4 py-1.5 rounded-full border flex items-center gap-2 shadow-lg transition-all duration-500 bg-[#09090b]`}
+                        className={`px-4 py-1.5 rounded-full border flex items-center gap-2 shadow-lg transition-all duration-500 bg-[#040404]`}
                         style={{
                             borderColor: isDone ? '#27272a' : (statusColor),
                             boxShadow: isDone ? 'none' : `0 0 15px -8px ${statusColor}40`
@@ -281,7 +281,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
 
                   {/* Label */}
                   <div className="flex items-center gap-4 mt-6">
-                      <div className={`w-0.5 h-6 ${isOrangeTheme ? 'bg-orange-500' : 'bg-zinc-700'}`}></div>
+                      <div className={`w-0.5 h-6 ${isOrangeTheme ? 'bg-[#ff4d00]' : 'bg-zinc-700'}`}></div>
                       <h3 className={`text-lg font-bold uppercase tracking-widest transition-colors duration-300 ${isOrangeTheme ? 'text-white' : 'text-zinc-500'}`}>
                           {stage.label}
                       </h3>
@@ -307,13 +307,13 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
       {backlog.length > 0 && (
         <div className="border-t border-white/5 pt-12 animate-in fade-in duration-700">
            <div className="flex items-center gap-4 mb-8">
-              <div className="p-2.5 bg-[#141414] rounded-lg border border-white/5">
+              <div className="p-2.5 bg-[#070707] rounded-lg border border-white/5">
                  <LayoutList className="w-4 h-4 text-zinc-500" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-zinc-300 uppercase tracking-widest">Backlog</h3>
                 <p className="text-[11px] text-zinc-500 mt-1">
-                   {backlog.length} unassigned tasks
+                   <span className="font-mono">{backlog.length}</span> unassigned tasks
                 </p>
               </div>
            </div>
@@ -323,7 +323,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
                  const isDone = isStatusDone(item.status.status);
                  const statusColor = item.status.color || '#52525b';
                  return (
-                   <div key={item.id} className="bg-[#0f0f0f] border border-white/5 hover:border-zinc-700 p-5 rounded-xl transition-all group flex items-start gap-4">
+                   <div key={item.id} className="bg-[#070707] border border-white/5 hover:border-zinc-700 p-5 rounded-lg transition-all group flex items-start gap-4">
                       <div className={`mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center ${isDone ? 'bg-zinc-800 border-transparent' : 'border-zinc-800'}`}>
                           {isDone && <Check className="w-3 h-3 text-zinc-500" />}
                       </div>
@@ -332,7 +332,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
                             <div className="flex items-center gap-2">
                                 <CircleDashed className="w-3 h-3 text-zinc-600" />
                                 {/* Backlog also gets the nice badge */}
-                                <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-[#121212] border border-zinc-800">
+                                <div className="flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-[#0a0a0a] border border-zinc-800">
                                     <div className="w-1 h-1 rounded-full" style={{ backgroundColor: statusColor }}></div>
                                     <span className="text-[8px] font-bold uppercase tracking-wider text-zinc-500">{item.status.status}</span>
                                 </div>

@@ -6,7 +6,13 @@ export const generateExecutiveSummary = async (
   clientName: string,
   tasks: ClickUpTask[]
 ): Promise<string> => {
-  if (!apiKey || tasks.length === 0) return "No data available for analysis.";
+  if (tasks.length === 0) return "No data available for analysis.";
+
+  if (!apiKey) {
+    const completed = tasks.filter(t => ['complete', 'closed', 'done', 'finished'].includes(t.status.status.toLowerCase())).length;
+    const progress = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
+    return `[Mock Summary] Project "${clientName}" has a total of ${tasks.length} tasks, with ${completed} completed (${progress}%). The team's current focus is on the remaining ${tasks.length - completed} pending tasks. Overall, project progress is tracking according to the mapped milestones, with specific attention required on any blocked items.`;
+  }
 
   const ai = new GoogleGenAI({ apiKey });
 

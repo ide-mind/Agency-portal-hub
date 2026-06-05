@@ -25,8 +25,11 @@ export interface ClickUpTask {
   assignees: ClickUpUser[];
   due_date: string | null;
   date_created: string;
+  date_updated?: string;
   url: string;
   parent?: string | null;
+  listId?: string;
+  listName?: string;
 }
 
 export interface ClickUpListResponse {
@@ -35,6 +38,17 @@ export interface ClickUpListResponse {
 
 export interface ClickUpTaskResponse {
   tasks: ClickUpTask[];
+}
+
+export interface SupabaseClientRecord {
+  id: string;
+  client_id: string;
+  name: string;
+  email: string;
+  access_code: string;
+  clickup_list_id: string;
+  status: 'Active' | 'Inactive';
+  created_at: string;
 }
 
 export interface AppConfig {

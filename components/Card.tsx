@@ -9,7 +9,7 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ children, className = '', title, headerRight }) => {
   return (
-    <div className={`bg-[#111111] border border-white/5 rounded-2xl p-8 relative overflow-hidden transition-all hover:border-white/10 shadow-sm ${className}`}>
+    <div className={`bg-[#070707] border border-white/5 rounded-lg p-8 relative overflow-hidden transition-all hover:border-white/10 shadow-sm ${className}`}>
       {(title || headerRight) && (
         <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
           {title && (
