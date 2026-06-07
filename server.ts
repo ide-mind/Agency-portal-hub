@@ -3,7 +3,7 @@ import path from "path";
 import { createClient } from "@supabase/supabase-js";
 import cors from "cors";
 
-async function startServer() {
+function startServer() {
   const app = express();
   const PORT = 3000;
 
@@ -122,8 +122,8 @@ async function startServer() {
   // The easiest is just to provide an API endpoint to get the config:
   // Supabase API Routes
   const getSupabaseClient = () => {
-      const url = process.env.SUPABASE_URL || 'https://mock.supabase.co';
-      const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || 'mock-key';
+      const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://mock.supabase.co';
+      const key = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'mock-key';
       return createClient(url, key);
   }
 
@@ -131,7 +131,7 @@ async function startServer() {
   let mockClients: any[] = [];
   let nextMockId = 1;
 
-  const isSupabaseMocked = !process.env.SUPABASE_URL || process.env.SUPABASE_URL.includes('mock.supabase.co');
+  const isSupabaseMocked = !(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL) || (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').includes('mock.supabase.co');
 
   app.post("/api/emails", async (req, res) => {
       try {
@@ -266,15 +266,16 @@ async function startServer() {
     });
   });
 
-  // Vite middleware
-  if (process.env.NODE_ENV !== "production") {
-    const { createServer: createViteServer } = await import("vite");
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
+  // We don't want to load Vite middleware on Vercel or when imported as a module
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+    import("vite").then(async ({ createServer: createViteServer }) => {
+        const vite = await createViteServer({
+          server: { middlewareMode: true },
+          appType: "spa",
+        });
+        app.use(vite.middlewares);
     });
-    app.use(vite.middlewares);
-  } else {
+  } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*all', (req, res) => {
@@ -282,14 +283,17 @@ async function startServer() {
     });
   }
 
-  // ... Existing code up to listen ...
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-
   return app;
 }
 
-const appPromise = startServer();
-// Need to export the app if Vercel serverless requires it
-export default appPromise;
+const app = startServer();
+
+// Start the server if running standalone
+if (process.env.NODE_ENV !== "production" || process.env.PORT || !process.env.VERCEL) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+export default app;
