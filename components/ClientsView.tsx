@@ -97,7 +97,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
       if (err.message === 'Failed to fetch') {
         addToast("Connection failed. Please check Supabase URL/CORS settings.");
       } else {
-        addToast("Failed to load clients. Check database connection.");
+        addToast(`Failed to load clients: ${err.message}`);
       }
     } finally {
       setLoading(false);
