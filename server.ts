@@ -7,6 +7,15 @@ function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Vercel serverless functions sometimes strip the matching prefix
+  // Re-add /api if needed so our routes match
+  app.use((req, res, next) => {
+     if (req.url && !req.url.startsWith('/api') && process.env.VERCEL) {
+         req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+     }
+     next();
+  });
+
   // Add CORS middleware so external dashboards (from Vercel or anywhere) can make API calls smoothly
   app.use(cors());
   app.use(express.json());
@@ -268,12 +277,16 @@ function startServer() {
 
   // We don't want to load Vite middleware on Vercel or when imported as a module
   if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-    import("vite").then(async ({ createServer: createViteServer }) => {
+    // Hide from bundlers 
+    const viteMod = "vite";
+    import(viteMod).then(async ({ createServer: createViteServer }) => {
         const vite = await createViteServer({
           server: { middlewareMode: true },
           appType: "spa",
         });
         app.use(vite.middlewares);
+    }).catch(err => {
+        console.error("Vite import failed", err);
     });
   } else if (!process.env.VERCEL) {
     const distPath = path.join(process.cwd(), 'dist');
