@@ -87,8 +87,12 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
     try {
       const response = await fetch('/api/clients');
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Failed to fetch clients");
+        const text = await response.text();
+        let errStr = text;
+        try {
+            errStr = JSON.parse(text).error;
+        } catch(e) {}
+        throw new Error(errStr || "Failed to fetch clients");
       }
       const data = await response.json();
       setClients(data as SupabaseClientRecord[]);

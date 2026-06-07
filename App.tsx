@@ -69,11 +69,17 @@ const App: React.FC = () => {
   useEffect(() => {
     // Fetch clients
     fetch('/api/clients')
-      .then(res => res.json())
+      .then(async res => {
+          if (!res.ok) {
+              const text = await res.text();
+              throw new Error(`HTTP ${res.status}: ${text.substring(0, 50)}`);
+          }
+          return res.json();
+      })
       .then(data => {
         if (Array.isArray(data)) setClients(data);
       })
-      .catch(err => console.error("Failed to load clients", err));
+      .catch(err => console.error("Failed to load clients in App", err));
   }, [selectedListId, activeView]);
 
   useEffect(() => {
