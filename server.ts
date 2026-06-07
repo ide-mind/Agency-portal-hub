@@ -1,11 +1,14 @@
 import express from "express";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
+import cors from "cors";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Add CORS middleware so external dashboards (from Vercel or anywhere) can make API calls smoothly
+  app.use(cors());
   app.use(express.json());
 
   // API routes
@@ -37,6 +40,80 @@ async function startServer() {
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch ClickUp tasks' });
     }
+  });
+
+  // External endpoint for other dashboards to fetch current phase
+  app.get("/api/external/client-phases", async (req, res) => {
+      try {
+        // 1. Fetch lists
+        const listsResponse = await fetch(`https://api.clickup.com/api/v2/folder/${process.env.CLICKUP_FOLDER_ID}/list`, {
+            headers: { 'Authorization': process.env.CLICKUP_API_KEY || '', 'Content-Type': 'application/json' }
+        });
+        const listsData = await listsResponse.json();
+        const lists = listsData.lists || [];
+
+        // 2. Define stages logic
+        const STAGES = [
+          { id: 'planning', label: 'Planning', number: '01', keywords: ['planning', 'strategy', 'discovery'] },
+          { id: 'design', label: 'Design', number: '02', keywords: ['design', 'wireframe', 'ui', 'ux'] },
+          { id: 'revision', label: 'Revision', number: '03', keywords: ['revision', 'feedback', 'review'] },
+          { id: 'testing', label: 'Testing', number: '04', keywords: ['testing', 'qa', 'staging'] },
+          { id: 'handoff', label: 'Handoff', number: '05', keywords: ['handoff', 'delivery', 'live', 'prod'] }
+        ];
+
+        const results = [];
+
+        // 3. For each list, fetch tasks and compute active phase
+        for (const list of lists) {
+             const tasksResponse = await fetch(`https://api.clickup.com/api/v2/list/${list.id}/task?page=0&include_closed=true&subtasks=true`, {
+                 headers: { 'Authorization': process.env.CLICKUP_API_KEY || '', 'Content-Type': 'application/json' }
+             });
+             const tasksData = await tasksResponse.json();
+             const tasks = tasksData.tasks || [];
+
+             let currentPhaseLabel = "01 Planning"; // Default
+             let firstActiveStageIndex = -1;
+
+             for (let i = 0; i < STAGES.length; i++) {
+                 const stage = STAGES[i];
+                 const isDoneStatus = (sts: string) => ['complete', 'closed', 'done', 'finished'].includes(sts?.toLowerCase() || '');
+                 
+                 const stageTasks = tasks.filter((t: any) => 
+                     stage.keywords.some(k => t.name.toLowerCase().includes(k) || t.status.status.toLowerCase().includes(k))
+                 );
+                 
+                 // If there's an in progress/to-do task in this stage, this stage is active
+                 const hasActive = stageTasks.some((t: any) => !isDoneStatus(t.status.status));
+
+                 if (stageTasks.length > 0 && hasActive) {
+                     if (firstActiveStageIndex === -1) {
+                         firstActiveStageIndex = i;
+                     }
+                 }
+             }
+
+             if (firstActiveStageIndex !== -1) {
+                 currentPhaseLabel = STAGES[firstActiveStageIndex].number + " " + STAGES[firstActiveStageIndex].label;
+             } else if (tasks.length > 0) {
+                 // Check if all are done
+                 const allDone = tasks.every((t: any) => ['complete', 'closed', 'done', 'finished'].includes(t.status.status.toLowerCase()));
+                 if (allDone) currentPhaseLabel = "05 Handoff (Completed)";
+             } else {
+                 currentPhaseLabel = "Not Started";
+             }
+
+             results.push({
+                 projectId: list.id,
+                 projectName: list.name,
+                 currentPhase: currentPhaseLabel,
+                 tasksAnalyzed: tasks.length
+             });
+        }
+
+        res.json({ success: true, timestamp: new Date().toISOString(), projects: results });
+      } catch (error: any) {
+          res.status(500).json({ error: error.message });
+      }
   });
 
   // Supabase proxy? Actually for Supabase, client-side is fine, but the user requested backend.
@@ -205,9 +282,14 @@ async function startServer() {
     });
   }
 
+  // ... Existing code up to listen ...
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
+
+  return app;
 }
 
-startServer();
+const appPromise = startServer();
+// Need to export the app if Vercel serverless requires it
+export default appPromise;
