@@ -14,46 +14,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const payload = { ...req.body };
     payload.from = 'IDE Mind <noreply@idemind.dev>';
 
-    // Unpack template variables if they are present
-    if (payload.template && payload.template.variables) {
-      const vars = payload.template.variables;
-      const clientName = vars.client_name || 'Client';
-      const projectName = vars.allocation_name || 'Project';
-      const otpCode = vars.otp_code || '------';
-      const portalLink = vars.portal_link || '#';
-
-      payload.html = `
-<!DOCTYPE html>
-<html>
-<head>
-</head>
-<body style="font-family: sans-serif; padding: 20px;">
-  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
-    Portal Access
-  </div>
-  <div style="margin-bottom: 24px;">
-    <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-      <defs>
-        <mask id="cut">
-          <rect width="200" height="200" fill="white" />
-          <line x1="-20" y1="220" x2="220" y2="-20" stroke="black" stroke-width="45" />
-        </mask>
-      </defs>
-      <rect width="200" height="200" fill="#FF4D00" mask="url(#cut)" />
-    </svg>
-  </div>
-  <p>Hello ${clientName},</p>
-  <p>Here is your portal access code for <strong>${projectName}</strong>:</p>
-  <div style="padding: 15px; background: #f0f0f0; display: inline-block; font-size: 24px; font-weight: bold; letter-spacing: 2px;">
-    ${otpCode}
-  </div>
-  <p>You can access your portal here: <a href="${portalLink}" style="color: #FF4D00;">${portalLink}</a></p>
-  <p>Best,<br><strong>IDE Mind</strong></p>
-</body>
-</html>
-      `;
-      delete payload.template;
-    } else if (payload.html) {
+    // If there is HTML provided directly, try to inject preview text, 
+    // but don't touch if they are using a template object (so we preserve template usage)
+    if (payload.html) {
       payload.html = payload.html.replace(
         /(<body[^>]*>)/i,
         '$1\n<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">\n  Portal Access\n</div>\n'
