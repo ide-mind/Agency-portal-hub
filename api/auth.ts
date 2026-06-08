@@ -8,6 +8,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { username, password } = req.body;
 
+  console.log('ENV CHECK:', process.env.ADMIN_USERNAME, process.env.ADMIN_PASSWORD ? 'password_exists' : 'password_missing');
+
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password are required' });
   }

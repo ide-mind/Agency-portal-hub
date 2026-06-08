@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
+import { Activity, Lock, User, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -83,13 +84,20 @@ export const LoginPage: React.FC = () => {
                   <Lock className="h-5 w-5 text-zinc-500" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#040404] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#ff4d00]/50 transition-colors placeholder:text-zinc-600"
+                  className="w-full bg-[#040404] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-[#ff4d00]/50 transition-colors placeholder:text-zinc-600"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
