@@ -6,6 +6,10 @@ let mockClients: any[] = [];
 let nextMockId = 1;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+    return res.status(500).json({ error: 'Missing Supabase environment variables' });
+  }
+
   const url = process.env.SUPABASE_URL || 'https://mock.supabase.co';
   const key = process.env.SUPABASE_ANON_KEY || 'mock-key';
   const isSupabaseMocked = !(process.env.SUPABASE_URL) || (process.env.SUPABASE_URL || '').includes('mock.supabase.co');
