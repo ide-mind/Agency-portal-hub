@@ -85,7 +85,12 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
   const fetchClients = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/clients');
+      const response = await fetch('/api/clients', {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!response.ok) {
         const text = await response.text();
         let errStr = text;
@@ -160,7 +165,11 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
 
       const response = await fetch('/api/clients', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
         body: JSON.stringify(newRecord)
       });
       if (!response.ok) {
@@ -228,7 +237,11 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
     try {
       const response = await fetch(`/api/clients?id=${selectedClient.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
         body: JSON.stringify({ access_code: newCode })
       });
       if (!response.ok) {
@@ -290,7 +303,11 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
     try {
       const response = await fetch(`/api/clients?id=${client.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
         body: JSON.stringify({ status: newStatus })
       });
       if (!response.ok) {
@@ -311,7 +328,11 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
     if (!window.confirm(`Are you sure you want to delete ${client.name}?`)) return;
     try {
       const response = await fetch(`/api/clients?id=${client.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
       });
       if (!response.ok) {
         const err = await response.json();

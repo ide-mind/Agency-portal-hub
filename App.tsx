@@ -46,7 +46,12 @@ const App: React.FC = () => {
   
   useEffect(() => {
     // Fetch clients
-    fetch('/api/clients')
+    fetch('/api/clients', {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    })
       .then(async res => {
           if (!res.ok) {
               const text = await res.text();
