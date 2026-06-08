@@ -51,11 +51,6 @@ export interface SupabaseClientRecord {
   created_at: string;
 }
 
-export interface AppConfig {
-  clickUpApiKey: string;
-  clickUpFolderId: string;
-  googleApiKey: string;
-}
 
 export interface Metrics {
   total: number;

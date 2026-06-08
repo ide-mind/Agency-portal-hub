@@ -7,7 +7,7 @@ import { DashboardOverview } from './components/DashboardOverview';
 import { StatusDonut } from './components/StatusDonut';
 import { DocumentsCard } from './components/DocumentsCard';
 import { ClientsView } from './components/ClientsView';
-import { AppConfig, ClickUpList, ClickUpTask, Metrics } from './types';
+import { ClickUpList, ClickUpTask, Metrics } from './types';
 import { fetchLists, fetchTasks } from './services/clickup';
 import { generateExecutiveSummary } from './services/gemini';
 import { 
