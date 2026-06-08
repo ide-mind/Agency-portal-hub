@@ -177,9 +177,11 @@ export const DocumentsCard: React.FC<{ className?: string, clientId?: string, mo
                 </div>
              </div>
              
-             <div className="p-6 bg-black/50 aspect-video flex-1 flex flex-col items-center justify-center relative">
+             <div className="p-6 bg-black/50 aspect-video flex-1 flex flex-col items-center justify-center relative overflow-hidden">
                 {activePreviewData.type.startsWith('image/') ? (
                     <img src={activePreviewData.dataUrl} alt="Preview" className="max-w-full max-h-full object-contain rounded-md" />
+                ) : activePreviewData.type === 'application/pdf' ? (
+                    <iframe src={`${activePreviewData.dataUrl}#toolbar=0`} title="Preview" className="w-full h-full rounded-md" />
                 ) : (
                    <div className="flex flex-col items-center text-zinc-500">
                      <FileText className="w-16 h-16 mb-4 opacity-50" />
