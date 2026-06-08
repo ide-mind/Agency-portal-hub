@@ -1,4 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <rect width="200" height="200" fill="#FF4D00" />
-  <line x1="-20" y1="220" x2="220" y2="-20" stroke="white" stroke-width="45" />
+  <defs>
+    <mask id="cut">
+      <rect width="200" height="200" fill="white" />
+      <line x1="-20" y1="220" x2="220" y2="-20" stroke="black" stroke-width="45" />
+    </mask>
+  </defs>
+  <rect width="200" height="200" fill="#FF4D00" mask="url(#cut)" />
 </svg>
