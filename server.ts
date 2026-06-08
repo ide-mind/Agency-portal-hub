@@ -131,8 +131,8 @@ function startServer() {
   // The easiest is just to provide an API endpoint to get the config:
   // Supabase API Routes
   const getSupabaseClient = () => {
-      const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://mock.supabase.co';
-      const key = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'mock-key';
+      const url = process.env.SUPABASE_URL || 'https://mock.supabase.co';
+      const key = process.env.SUPABASE_ANON_KEY || 'mock-key';
       return createClient(url, key);
   }
 
@@ -140,11 +140,11 @@ function startServer() {
   let mockClients: any[] = [];
   let nextMockId = 1;
 
-  const isSupabaseMocked = !(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL) || (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').includes('mock.supabase.co');
+  const isSupabaseMocked = !(process.env.SUPABASE_URL) || (process.env.SUPABASE_URL || '').includes('mock.supabase.co');
 
   app.post("/api/emails", async (req, res) => {
       try {
-          const key = process.env.VITE_RESEND_API_KEY || process.env.RESEND_API_KEY;
+          const key = process.env.RESEND_API_KEY;
           if (!key) {
               return res.status(400).json({ error: "No Resend API Key configured" });
           }

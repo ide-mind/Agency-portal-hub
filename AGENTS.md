@@ -6,10 +6,11 @@ For this project, use Doppler environment variables. NEVER hardcode any secrets.
 **Backend (Node.js):**
 * `CLICKUP_API_KEY` → `process.env.CLICKUP_API_KEY` 
 * `CLICKUP_FOLDER_ID` → `process.env.CLICKUP_FOLDER_ID`
+* `RESEND_API_KEY` → `process.env.RESEND_API_KEY`
+* `SUPABASE_ANON_KEY` → `process.env.SUPABASE_ANON_KEY`
+* `SUPABASE_URL` → `process.env.SUPABASE_URL`
 
 **Frontend (Vite/React):**
-* `VITE_RESEND_API_KEY` → `import.meta.env.VITE_RESEND_API_KEY`
-* `VITE_SUPABASE_ANON_KEY` → `import.meta.env.VITE_SUPABASE_ANON_KEY`
-* `VITE_SUPABASE_URL` → `import.meta.env.VITE_SUPABASE_URL`
+* DO NOT USE ANY SECRETS OR ENV VARS IN THE FRONTEND. Route all API calls through the backend (`/api/*`).
 
 **Rule:** Apply this to all future code generated for this project.
