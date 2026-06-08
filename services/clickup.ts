@@ -24,7 +24,7 @@ export const fetchLists = async (): Promise<ClickUpList[]> => {
 
 export const fetchTasks = async (listId: string): Promise<ClickUpTask[]> => {
   try {
-    const response = await fetch(`/api/clickup/tasks/${listId}`);
+    const response = await fetch(`/api/clickup/tasks?listId=${listId}`);
 
     if (!response.ok) {
       throw new Error(`ClickUp API Error: ${response.statusText}`);

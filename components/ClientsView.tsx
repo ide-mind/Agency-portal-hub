@@ -226,7 +226,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
     if (!selectedClient) return;
     const newCode = generateAccessCode();
     try {
-      const response = await fetch(`/api/clients/${selectedClient.id}`, {
+      const response = await fetch(`/api/clients?id=${selectedClient.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access_code: newCode })
@@ -288,7 +288,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
   const handleDeactivate = async (client: SupabaseClientRecord) => {
     const newStatus = client.status === 'Active' ? 'Inactive' : 'Active';
     try {
-      const response = await fetch(`/api/clients/${client.id}`, {
+      const response = await fetch(`/api/clients?id=${client.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -310,7 +310,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
   const handleDelete = async (client: SupabaseClientRecord) => {
     if (!window.confirm(`Are you sure you want to delete ${client.name}?`)) return;
     try {
-      const response = await fetch(`/api/clients/${client.id}`, {
+      const response = await fetch(`/api/clients?id=${client.id}`, {
         method: 'DELETE'
       });
       if (!response.ok) {
