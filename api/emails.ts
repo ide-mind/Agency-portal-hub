@@ -11,13 +11,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: "No Resend API Key configured" });
     }
 
+    const payload = { ...req.body };
+    payload.from = 'IDE Mind <noreply@idemind.dev>';
+
+    // Unpack template variables if they are present
+    if (payload.template && payload.template.variables) {
+      const vars = payload.template.variables;
+      const clientName = vars.client_name || 'Client';
+      const projectName = vars.allocation_name || 'Project';
+      const otpCode = vars.otp_code || '------';
+      const portalLink = vars.portal_link || '#';
+
+      payload.html = `
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body style="font-family: sans-serif; padding: 20px;">
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    Portal Access
+  </div>
+  <p>Hello ${clientName},</p>
+  <p>Here is your portal access code for <strong>${projectName}</strong>:</p>
+  <div style="padding: 15px; background: #f0f0f0; display: inline-block; font-size: 24px; font-weight: bold; letter-spacing: 2px;">
+    ${otpCode}
+  </div>
+  <p>You can access your portal here: <a href="${portalLink}">${portalLink}</a></p>
+  <p>Best,<br>IDE Mind</p>
+</body>
+</html>
+      `;
+      delete payload.template;
+    } else if (payload.html) {
+      payload.html = payload.html.replace(
+        /(<body[^>]*>)/i,
+        '$1\n<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">\n  Portal Access\n</div>\n'
+      );
+    }
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${key}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();
