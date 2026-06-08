@@ -27,28 +27,6 @@ import {
 
 const App: React.FC = () => {
   // State
-  const [configLoaded, setConfigLoaded] = useState(false);
-  const [config, setConfig] = useState<AppConfig>({
-    clickUpApiKey: '',
-    clickUpFolderId: '',
-    googleApiKey: '',
-  });
-
-  useEffect(() => {
-    // Load config from backend
-    fetch('/api/config')
-      .then(res => res.json())
-      .then(data => {
-        setConfig({
-          clickUpApiKey: data.clickUpApiKey || '',
-          clickUpFolderId: data.clickUpFolderId || '',
-          googleApiKey: data.googleApiKey || '',
-        });
-        setConfigLoaded(true);
-      })
-      .catch(err => console.error("Failed to load config", err));
-  }, []);
-
   const [lists, setLists] = useState<ClickUpList[]>([]);
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [tasks, setTasks] = useState<ClickUpTask[]>([]);
@@ -129,7 +107,7 @@ const App: React.FC = () => {
     setLoadingAllTasks(true);
     try {
       const allPromises = lists.map(list => 
-        fetchTasks(list.id, '').then(tasks => 
+        fetchTasks(list.id).then(tasks => 
           tasks.map(t => ({ ...t, listId: list.id, listName: list.name }))
         )
       );
@@ -138,7 +116,7 @@ const App: React.FC = () => {
       setAllTasks(combinedTasks);
 
       setLoadingOverallSummary(true);
-      generateExecutiveSummary(config.googleApiKey || '', 'All Client Projects', combinedTasks)
+      generateExecutiveSummary('All Client Projects', combinedTasks)
         .then(summary => setOverallAiSummary(summary))
         .catch(e => console.error(e))
         .finally(() => setLoadingOverallSummary(false));
@@ -161,7 +139,7 @@ const App: React.FC = () => {
     setLoadingLists(true);
     setError(null);
     try {
-      const fetchedLists = await fetchLists('', '');
+      const fetchedLists = await fetchLists();
       setLists(fetchedLists);
       if (fetchedLists.length === 0) {
         setError("No lists found in this folder.");
@@ -174,10 +152,8 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (configLoaded) {
-      handleFetchLists();
-    }
-  }, [configLoaded]);
+    handleFetchLists();
+  }, []);
 
   const handleSelectList = async (listId: string) => {
     setActiveView('dashboard');
@@ -191,14 +167,12 @@ const App: React.FC = () => {
     }
 
     try {
-      const fetchedTasks = await fetchTasks(listId, '');
+      const fetchedTasks = await fetchTasks(listId);
       setTasks(fetchedTasks);
 
       const listName = lists?.find(l => l.id === listId)?.name || 'Client';
       
-      const aiKey = config.googleApiKey || '';
-      
-      generateExecutiveSummary(aiKey, listName, fetchedTasks)
+      generateExecutiveSummary(listName, fetchedTasks)
         .then(summary => {
           setAiSummary(summary);
           setLoadingSummary(false);
@@ -247,8 +221,6 @@ const App: React.FC = () => {
 
       {/* Sidebar Navigation */}
       <Sidebar 
-        config={config}
-        setConfig={setConfig}
         lists={lists}
         selectedListId={selectedListId}
         onSelectList={handleSelectList}

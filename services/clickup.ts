@@ -6,7 +6,7 @@ const BASE_URL = 'https://api.clickup.com/api/v2';
 // For this demo, we assume the user might use a CORS unblocker or the API permits it in certain contexts.
 // If direct browser access fails, this logic remains valid but requires a proxy middleware.
 
-export const fetchLists = async (folderId: string, apiKey: string): Promise<ClickUpList[]> => {
+export const fetchLists = async (): Promise<ClickUpList[]> => {
   try {
     const response = await fetch(`/api/clickup/lists`);
 
@@ -22,7 +22,7 @@ export const fetchLists = async (folderId: string, apiKey: string): Promise<Clic
   }
 };
 
-export const fetchTasks = async (listId: string, apiKey: string): Promise<ClickUpTask[]> => {
+export const fetchTasks = async (listId: string): Promise<ClickUpTask[]> => {
   try {
     const response = await fetch(`/api/clickup/tasks/${listId}`);
 

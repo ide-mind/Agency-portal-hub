@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Input } from './Input';
-import { ClickUpList, AppConfig } from '../types';
+import { ClickUpList } from '../types';
 import { 
   Settings, 
   FolderSearch, 
@@ -22,8 +22,6 @@ import {
 } from 'lucide-react';
 
 interface SidebarProps {
-  config: AppConfig;
-  setConfig: React.Dispatch<React.SetStateAction<AppConfig>>;
   lists: ClickUpList[];
   selectedListId: string | null;
   onSelectList: (id: string) => void;
@@ -38,8 +36,6 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  config,
-  setConfig,
   lists,
   selectedListId,
   onSelectList,
@@ -53,16 +49,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigateClients
 }) => {
   const [isTargetIndexOpen, setIsTargetIndexOpen] = useState(true);
-  const [isConfigMatrixOpen, setIsConfigMatrixOpen] = useState(false);
   const [isIntegrationsOpen, setIsIntegrationsOpen] = useState(true);
   
   // Local state to track which dummy item is active
   const [activeItem, setActiveItem] = useState<string>('dashboard');
-  
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setConfig(prev => ({ ...prev, [name]: value }));
-  };
 
   // Helper for applying un-clicked logic + selection
   const handleSelectNav = (item: string, callback?: () => void) => {
@@ -251,12 +241,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="space-y-1">
                 <button
                   onClick={() => handleSelectNav('clickup-sync', onFetchLists)}
-                  disabled={isLoadingLists || !config.clickUpApiKey || !config.clickUpFolderId}
+                  disabled={isLoadingLists}
                   className={`group w-full text-left px-4 py-3 rounded-lg text-xs font-medium transition-all relative overflow-hidden ${
                     activeItem === 'clickup-sync'
                       ? 'bg-[#ff4d00]/10 text-[#ff4d00] border border-[#ff4d00]/20' 
                       : 'text-zinc-400 border border-transparent hover:bg-white/[0.03] hover:text-zinc-200'
-                  } ${isLoadingLists || !config.clickUpApiKey || !config.clickUpFolderId ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${isLoadingLists ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <div className="flex items-center gap-3 relative z-10">
                     <RefreshCw className={`w-4 h-4 ${isLoadingLists ? 'animate-spin' : ''}`} />
@@ -304,49 +294,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               
               <div className="space-y-1">
-                <div>
-                  <button
-                    onClick={() => setIsConfigMatrixOpen(!isConfigMatrixOpen)}
-                    className={`group w-full text-left px-4 py-3 rounded-lg text-xs font-medium transition-all relative overflow-hidden text-zinc-400 border border-transparent hover:bg-white/[0.03] hover:text-zinc-200`}
-                  >
-                    <div className="flex items-center gap-3 relative z-10">
-                      <Settings className="w-4 h-4" />
-                      <span className="tracking-wide">Configuration</span>
-                    </div>
-                  </button>
-
-                  <div className={`transition-all duration-300 overflow-hidden ${isConfigMatrixOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="space-y-4 bg-[#0a0a0a] p-4 rounded-lg border border-[#ff4d00]/10 mx-2 mt-1 mb-2">
-                      <Input
-                        label="ClickUp API Key"
-                        name="clickUpApiKey"
-                        type="password"
-                        placeholder="pk_..."
-                        value={config.clickUpApiKey}
-                        onChange={handleChange}
-                        className="bg-[#040404]"
-                      />
-                       <Input
-                        label="Folder ID"
-                        name="clickUpFolderId"
-                        placeholder="12345678"
-                        value={config.clickUpFolderId}
-                        onChange={handleChange}
-                        className="bg-[#040404]"
-                      />
-                      <Input
-                        label="Gemini API Key"
-                        name="googleApiKey"
-                        type="password"
-                        placeholder="AIza..."
-                        value={config.googleApiKey}
-                        onChange={handleChange}
-                        className="bg-[#040404]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 <button
                   onClick={() => handleSelectNav('preferences')}
                   className={`group w-full text-left px-4 py-3 rounded-lg text-xs font-medium transition-all relative overflow-hidden ${
