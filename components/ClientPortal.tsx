@@ -244,57 +244,42 @@ export const ClientPortal: React.FC = () => {
 
         {/* Client Header */}
         <header className="mb-12 relative shrink-0 border-b border-white/5 pb-8">
-           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-             <div className="flex items-center gap-4">
-                <img 
-                  src="https://raw.githubusercontent.com/Muhammad7Ali/IDE-MIND-Assest-/main/IDE%20MIND%20Logo(2000%20x%201000%20px).png" 
-                  alt="IDE MIND Logo" 
-                  className="w-32 h-auto object-contain" 
-                />
-             </div>
-             <div className="flex items-center gap-4">
-               <div className="text-right">
-                 <div className="text-zinc-500 text-xs font-semibold uppercase tracking-widest">{displayClientId || 'Client'}</div>
-                 <div className="text-white text-sm font-bold truncate max-w-[200px]">{clientName}</div>
+           <div className="flex flex-row justify-between items-center gap-4">
+             <img 
+               src="https://raw.githubusercontent.com/Muhammad7Ali/IDE-MIND-Assest-/main/IDE%20MIND%20Logo(2000%20x%201000%20px).png" 
+               alt="IDE MIND Logo" 
+               className="w-28 md:w-32 h-auto object-contain" 
+             />
+             <div className="flex items-center gap-3 md:gap-4">
+               <div className="text-right hidden sm:block">
+                 <div className="text-zinc-500 text-[10px] md:text-xs font-semibold uppercase tracking-widest">{displayClientId || 'Client'}</div>
+                 <div className="text-white text-xs md:text-sm font-bold truncate max-w-[150px] md:max-w-[200px]">{clientName}</div>
                </div>
-               <div className="w-10 h-10 rounded-full bg-[#ff4d00] flex items-center justify-center font-bold text-white shadow-[0_0_10px_rgba(255,77,0,0.3)]">
+               <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#ff4d00] flex items-center justify-center font-bold text-white shadow-[0_0_10px_rgba(255,77,0,0.3)] text-xs md:text-base">
                   {clientName.slice(0,2).toUpperCase()}
                </div>
              </div>
            </div>
 
-           <div className="mt-8 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-             <div>
-               <h2 className="text-zinc-500 text-[11px] font-semibold uppercase tracking-widest mb-2">Project Dashboard</h2>
-               <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-none font-display">
+           <div className="mt-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+             <div className="text-center sm:text-left">
+               <h2 className="text-zinc-500 text-[10px] md:text-[11px] font-semibold uppercase tracking-widest mb-2">Project Dashboard</h2>
+               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-none font-display">
                  {projectName || clientName}
                </h1>
              </div>
-             <div className="flex gap-2">
+             <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                {errorTasks && (
-                  <span className="text-red-400 text-[10px] font-medium flex items-center gap-1 bg-red-500/10 px-2 py-0.5 rounded-full mr-4">
+                  <span className="text-red-400 text-[10px] font-medium flex items-center justify-center gap-1 bg-red-500/10 px-3 py-1.5 rounded-full w-full sm:w-auto">
                     <Activity className="w-3 h-3" /> {errorTasks}
                   </span>
                )}
                <a href="https://wa.me/923110484556"
                  target="_blank"
                  rel="noopener noreferrer"
-                 style={{
-                   display: 'inline-flex',
-                   alignItems: 'center',
-                   gap: '10px',
-                   background: '#ffffff',
-                   color: '#111111',
-                   fontSize: '14px',
-                   fontWeight: 500,
-                   padding: '11px 20px',
-                   borderRadius: '10px',
-                   textDecoration: 'none',
-                   letterSpacing: '0.02em',
-                   cursor: 'pointer'
-                 }}
+                 className="flex items-center justify-center gap-2 bg-white text-[#111111] text-xs md:text-sm font-medium py-3 px-5 rounded-xl no-underline tracking-wide w-full sm:w-auto transition-transform active:scale-95"
                >
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#111111" xmlns="http://www.w3.org/2000/svg">
+                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                    <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.57A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.21-1.25-6.22-3.48-8.52ZM12 21.94a9.89 9.89 0 0 1-5.04-1.38l-.36-.21-3.7.93.99-3.6-.24-.38A9.93 9.93 0 0 1 2.06 12C2.06 6.5 6.5 2.06 12 2.06S21.94 6.5 21.94 12 17.5 21.94 12 21.94Zm5.44-7.44c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.09 4.49.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.76-.72 2.01-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35Z"/>
                  </svg>
                  CONTACT ON WHATSAPP
@@ -311,8 +296,8 @@ export const ClientPortal: React.FC = () => {
         ) : (
           <div className="space-y-8 animate-in fade-in duration-500 flex-1">
             {/* Top Metrics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="col-span-1 min-h-[160px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="col-span-1 min-h-[140px] md:min-h-[160px]">
                 <MetricCard 
                   title="Total Tasks" 
                   value={metrics.total} 
@@ -320,7 +305,7 @@ export const ClientPortal: React.FC = () => {
                   icon={<Layers className="w-5 h-5" />}
                 />
               </div>
-              <div className="col-span-1 min-h-[160px]">
+              <div className="col-span-1 min-h-[140px] md:min-h-[160px]">
                 <MetricCard 
                   title="Active Work" 
                   value={metrics.inProgress} 
@@ -329,7 +314,7 @@ export const ClientPortal: React.FC = () => {
                   active={false}
                 />
               </div>
-              <div className="col-span-1 min-h-[160px]">
+              <div className="col-span-1 min-h-[140px] md:min-h-[160px]">
                 <MetricCard 
                   title="Completion Rate" 
                   value={`${metrics.total > 0 ? Math.round((metrics.completed / metrics.total) * 100) : 0}%`} 
@@ -337,7 +322,7 @@ export const ClientPortal: React.FC = () => {
                   icon={<CheckCircle2 className="w-5 h-5" />}
                 />
               </div>
-               <div className="col-span-1 min-h-[160px]">
+               <div className="col-span-1 min-h-[140px] md:min-h-[160px]">
                 <MetricCard 
                   title="Upcoming Deadlines" 
                   value={tasks.filter(t => t.due_date).length || 3} 
@@ -348,14 +333,14 @@ export const ClientPortal: React.FC = () => {
             </div>
 
             {/* Graphs Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                <div className="lg:col-span-1">
-                  <Card className="h-full min-h-[380px]" title="STATUS DISTRIBUTION">
+                  <Card className="h-full min-h-[320px] md:min-h-[380px]" title="STATUS DISTRIBUTION">
                      <StatusDonut data={metrics.byStatus} total={metrics.total} />
                   </Card>
                </div>
                <div className="lg:col-span-1">
-                  <DocumentsCard clientId={listId || clientId} mode="client" className="h-full min-h-[380px]" />
+                  <DocumentsCard clientId={listId || clientId} mode="client" className="h-full min-h-[320px] md:min-h-[380px]" />
                </div>
             </div>
 

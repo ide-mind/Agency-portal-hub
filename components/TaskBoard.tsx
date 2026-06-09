@@ -243,7 +243,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
           return (
             <div 
               key={stage.id} 
-              className={`${containerClasses} p-8 rounded-lg relative overflow-hidden group transition-all duration-500 flex flex-col min-h-[360px]`}
+              className={`${containerClasses} p-6 md:p-8 rounded-lg relative overflow-hidden group transition-all duration-500 flex flex-col min-h-[360px]`}
             >
               {/* Interactive Gradient - Only for Orange Theme */}
               {isOrangeTheme && (

@@ -273,7 +273,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
         body: JSON.stringify({
           from: 'noreply@idemind.dev',
           to: [email],
-          subject: 'Your Portal Access Code',
+          subject: `Portal Access Code - ${clientName} (${new Date().toLocaleTimeString()})`,
           template: {
             id: '6582d6e8-9e84-4a2c-93bd-6afd6413822a',
             variables: {

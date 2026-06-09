@@ -14,7 +14,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({ title, value, subValue, 
       ${active 
         ? 'bg-[#070707] border-[#ff4d00]/30 shadow-[0_4px_20px_-10px_rgba(255,77,0,0.15)]' 
         : 'bg-[#070707] border-white/5 hover:border-[#ff4d00]/20 hover:shadow-lg'
-      } p-8 flex flex-col justify-between`}
+      } p-6 md:p-8 flex flex-col justify-between`}
     >
       <div className="flex justify-between items-start z-10">
         <p className="text-[11px] text-zinc-500 font-semibold uppercase tracking-widest">
