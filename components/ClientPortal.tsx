@@ -54,6 +54,22 @@ export const ClientPortal: React.FC = () => {
     setLoadingAuth(false);
   }, [clientId]);
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text/plain').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const pastedChars = pastedData.split('').slice(0, 5);
+    
+    if (pastedChars.length > 0) {
+      const newCode = [...accessCode];
+      pastedChars.forEach((char, index) => {
+        newCode[index] = char;
+      });
+      setAccessCode(newCode);
+      const focusIndex = Math.min(pastedChars.length, 4);
+      document.getElementById(`pin-${focusIndex}`)?.focus();
+    }
+  };
+
   const handlePinChange = (index: number, value: string) => {
     const val = value.toUpperCase();
     if (val.length > 1) {
@@ -205,6 +221,7 @@ export const ClientPortal: React.FC = () => {
                   value={digit}
                   onChange={(e) => handlePinChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
+                  onPaste={handlePaste}
                   className="w-10 h-12 sm:w-12 sm:h-14 bg-zinc-900 border border-white/10 text-center text-lg sm:text-xl font-mono text-white rounded-xl focus:outline-none focus:border-[#ff4d00]/50 focus:ring-1 focus:ring-[#ff4d00]/50 transition-all placeholder:text-zinc-700"
                   placeholder="&bull;"
                 />
