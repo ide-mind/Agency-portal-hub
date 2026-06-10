@@ -362,8 +362,9 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
 
   // Client initials helper
   const getInitials = (name: string) => {
-    const parts = name.split(' ');
-    if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+    if (!name) return 'C';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length > 1 && parts[1]?.length > 0) return (parts[0][0] + parts[1][0]).toUpperCase();
     return name.slice(0, 2).toUpperCase();
   };
 
@@ -475,7 +476,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
                       </td>
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-[#ff4d00] flex items-center justify-center text-white font-bold text-sm shadow-[0_0_10px_rgba(255,77,0,0.3)] shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-[#ff4d00] flex items-center justify-center text-white font-bold text-sm shadow-[0_0_10px_rgba(255,77,0,0.3)] shrink-0 overflow-hidden">
                             {getInitials(client.name)}
                           </div>
                           <div>
@@ -744,7 +745,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
                <>
                 <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
                    <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-full bg-[#ff4d00] flex items-center justify-center text-white font-bold text-xl shadow-[0_0_15px_rgba(255,77,0,0.3)]">
+                     <div className="w-12 h-12 rounded-full bg-[#ff4d00] flex items-center justify-center text-white font-bold text-xl shadow-[0_0_15px_rgba(255,77,0,0.3)] overflow-hidden">
                         {getInitials(selectedClient.name)}
                      </div>
                      <div>
