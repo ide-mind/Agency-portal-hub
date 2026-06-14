@@ -189,6 +189,63 @@ export const ClientPortal: React.FC = () => {
     return { total, completed, inProgress, byStatus };
   }, [tasks]);
 
+  const currentPhaseData = useMemo(() => {
+    if (!tasks || tasks.length === 0) return { count: 0, daysText: "Next 7 days" };
+
+    const getParentId = (t: ClickUpTask) => (t.parent && typeof t.parent === 'object' ? (t.parent as any).id : String(t.parent));
+    const roots: ClickUpTask[] = [];
+    const childrenByParent = new Map<string, ClickUpTask[]>();
+    
+    tasks.forEach(t => {
+      const pId = getParentId(t);
+      if (pId && pId !== 'undefined' && pId !== 'null' && tasks.some(pt => pt.id === pId)) {
+        if (!childrenByParent.has(pId)) childrenByParent.set(pId, []);
+        childrenByParent.get(pId)!.push(t);
+      } else {
+        roots.push(t);
+      }
+    });
+
+    const isDone = (status?: string) => ['complete', 'closed', 'done', 'finished'].includes(status?.toLowerCase() || '');
+    const isInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development'].includes(status?.toLowerCase() || '');
+
+    // 1. Prefer "in progress"
+    let activeRoot = roots.find(r => isInProgress(r.status.status));
+    // 2. If none in progress, find first not done
+    if (!activeRoot) {
+        activeRoot = roots.find(r => !isDone(r.status.status));
+    }
+    // 3. Fallback to last root
+    if (!activeRoot && roots.length > 0) {
+        activeRoot = roots[roots.length - 1];
+    }
+
+    if (!activeRoot) return { count: 0, daysText: "Next 7 days" };
+
+    const subtasks = childrenByParent.get(activeRoot.id) || [];
+    const count = subtasks.length;
+    
+    let daysText = "-";
+    if (activeRoot.start_date && activeRoot.due_date) {
+        const start = new Date(parseInt(activeRoot.start_date));
+        const due = new Date(parseInt(activeRoot.due_date));
+        const diffTime = Math.abs(due.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        daysText = `${diffDays} Days Phase`;
+    } else if (activeRoot.due_date) {
+        const due = new Date(parseInt(activeRoot.due_date));
+        const now = new Date();
+        const diffTime = due.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) daysText = `${Math.abs(diffDays)} Days Overdue`;
+        else daysText = `${diffDays} Days Left`;
+    } else {
+        daysText = "No Dates Set";
+    }
+
+    return { count, daysText };
+  }, [tasks]);
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#040404] flex items-center justify-center p-4 selection:bg-[#ff4d00]/30 font-sans">
@@ -342,8 +399,8 @@ export const ClientPortal: React.FC = () => {
                <div className="col-span-1 min-h-[140px] md:min-h-[160px]">
                 <MetricCard 
                   title="Upcoming Deadlines" 
-                  value={tasks.filter(t => t.due_date).length || 3} 
-                  subValue="Next 7 days"
+                  value={currentPhaseData.count} 
+                  subValue={currentPhaseData.daysText.toUpperCase()}
                   icon={<MoreHorizontal className="w-5 h-5" />}
                 />
               </div>

@@ -24,6 +24,7 @@ export interface ClickUpTask {
   status: ClickUpStatus;
   assignees: ClickUpUser[];
   due_date: string | null;
+  start_date?: string | null;
   date_created: string;
   date_updated?: string;
   url: string;
