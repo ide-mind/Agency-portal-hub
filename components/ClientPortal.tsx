@@ -259,7 +259,9 @@ export const ClientPortal: React.FC = () => {
         activeBucket = [...buckets].reverse().find(b => b.mainTask); 
     }
 
-    if (!activeBucket || !activeBucket.mainTask) return { count: 0, daysText: "Next 7 days" };
+    if (!activeBucket || !activeBucket.mainTask) {
+        return { count: 0, daysText: "Next 7 days", title: "Upcoming Deadlines" };
+    }
 
     const activeSubtasks = activeBucket.items.filter(t => t.id !== activeBucket!.mainTask!.id && !isDone(t.status.status));
     const count = activeSubtasks.length;
@@ -284,7 +286,11 @@ export const ClientPortal: React.FC = () => {
         daysText = "No Dates Set";
     }
 
-    return { count, daysText };
+    return { 
+      count, 
+      daysText, 
+      title: `${activeBucket.label} Subtasks`
+    };
   }, [tasks]);
 
   if (!isAuthenticated) {
@@ -439,7 +445,7 @@ export const ClientPortal: React.FC = () => {
               </div>
                <div className="col-span-1 min-h-[140px] md:min-h-[160px]">
                 <MetricCard 
-                  title="Upcoming Deadlines" 
+                  title={currentPhaseData.title.toUpperCase()} 
                   value={`${currentPhaseData.count}`} 
                   subValue={currentPhaseData.daysText.toUpperCase()}
                   icon={<MoreHorizontal className="w-5 h-5" />}
