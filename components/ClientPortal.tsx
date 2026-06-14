@@ -249,7 +249,7 @@ export const ClientPortal: React.FC = () => {
     });
 
     const isDone = (status?: string) => ['complete', 'closed', 'done', 'finished'].includes(status?.toLowerCase() || '');
-    const isInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development', 'in review', 'review'].includes(status?.toLowerCase() || '');
+    const isInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development', 'in review', 'review', 'planning'].includes(status?.toLowerCase() || '');
 
     let activeBucket = buckets.find(b => b.mainTask && isInProgress(b.mainTask.status.status));
     if (!activeBucket) {

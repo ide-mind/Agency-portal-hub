@@ -24,6 +24,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         throw new Error("Failed to fetch tasks");
     }
     const data = await response.json();
+    if (data.tasks) {
+      console.log('Fetched tasks:', data.tasks.length);
+      data.tasks.forEach((t: any) => {
+        if (t.name.toLowerCase().includes('planning')) console.log('Planning task:', { id: t.id, parent: t.parent });
+      });
+      const roots = data.tasks.filter((t: any) => !t.parent).length;
+      console.log('Roots count:', roots, 'Subtasks count:', data.tasks.length - roots);
+    }
     return res.json(data);
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Failed to fetch ClickUp tasks' });

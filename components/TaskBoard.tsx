@@ -53,7 +53,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks }) => {
 
   // Helper status checkers
   const isStatusDone = (status?: string) => ['complete', 'closed', 'done', 'finished'].includes(status?.toLowerCase() || '');
-  const isStatusInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development'].includes(status?.toLowerCase() || '');
+  const isStatusInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development', 'planning', 'in review', 'review'].includes(status?.toLowerCase() || '');
 
   // Group tasks logic
   const { boardData, backlog } = useMemo(() => {
