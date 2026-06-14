@@ -440,7 +440,7 @@ export const ClientPortal: React.FC = () => {
                <div className="col-span-1 min-h-[140px] md:min-h-[160px]">
                 <MetricCard 
                   title="Upcoming Deadlines" 
-                  value={currentPhaseData.count} 
+                  value={`${currentPhaseData.count}`} 
                   subValue={currentPhaseData.daysText.toUpperCase()}
                   icon={<MoreHorizontal className="w-5 h-5" />}
                 />
