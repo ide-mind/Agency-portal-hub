@@ -5,6 +5,7 @@ import { Card } from './Card';
 import { Users, Folder, Layers, Clock, ArrowRight, Activity, ServerCrash } from 'lucide-react';
 import { StatusDonut } from './StatusDonut';
 import { DocumentsCard } from './DocumentsCard';
+import { getPhaseData } from './phaseUtils';
 
 interface DashboardOverviewProps {
   lists: ClickUpList[];
@@ -49,15 +50,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   }, [allTasks]);
 
   const upcomingDeadlinesCount = useMemo(() => {
-    // Upcoming Deadlines in next 7 days
-    const now = new Date();
-    const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    return allTasks.filter(t => {
-      if (!t.due_date) return false;
-      const dueDate = new Date(parseInt(t.due_date));
-      return dueDate > now && dueDate <= nextWeek && !['complete', 'closed', 'done', 'finished'].includes(t.status.status.toLowerCase());
-    }).length;
-  }, [allTasks]);
+    let activeDeadlines = 0;
+    lists.forEach(list => {
+      const listTasks = allTasks.filter(t => t.listId === list.id);
+      const phaseData = getPhaseData(listTasks);
+      activeDeadlines += phaseData.count;
+    });
+    return activeDeadlines;
+  }, [lists, allTasks]);
 
   const projectsHealth = useMemo(() => {
     return lists.map(list => {
@@ -75,11 +75,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         } else status = 'To Do';
       }
 
+      const phaseData = getPhaseData(listTasks);
+      const phaseString = phaseData.phaseName ? `${phaseData.phaseName} • ${phaseData.daysText}` : 'Planning';
+
       // We can map status to specific styling
       return {
         id: list.id,
         name: list.name,
-        phase: 'Execution', // Mock phase or derive it
+        phase: phaseString,
         completionPercentage,
         status,
         totalTasks
@@ -162,7 +165,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <MetricCard 
             title="Upcoming Deadlines" 
             value={upcomingDeadlinesCount} 
-            subValue="Next 7 days"
+            subValue="Across active phases"
             icon={<Clock className="w-5 h-5" />}
           />
         </div>

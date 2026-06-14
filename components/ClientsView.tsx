@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { DocumentsCard } from './DocumentsCard';
+import { getPhaseData } from './phaseUtils';
 
 interface ClientsViewProps {
   lists: ClickUpList[];
@@ -821,6 +822,8 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
                             const tasks = getClientTasks(proj.id);
                             const done = tasks.filter(t => ['closed','done','complete'].includes(t.status.status.toLowerCase())).length;
                             const pct = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
+                            const phaseData = getPhaseData(tasks);
+                            const phaseString = phaseData.phaseName ? `${phaseData.phaseName} • ${phaseData.daysText}` : 'Planning';
                             
                             return (
                               <div key={proj.id} className="bg-zinc-900 border border-white/5 rounded-lg p-4">
@@ -829,7 +832,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ lists, allTasks }) => 
                                     <Building className="w-4 h-4 text-[#ff4d00]" />
                                     <span className="font-semibold text-white text-sm tracking-wide">{proj.name}</span>
                                   </div>
-                                  <span className="text-xs text-zinc-500 uppercase tracking-widest font-bold bg-black px-2 py-1 rounded">Execution Phase</span>
+                                  <span className="text-xs text-zinc-500 uppercase tracking-widest font-bold bg-black px-2 py-1 rounded w-fit max-w-[200px] truncate">{phaseString}</span>
                                 </div>
                                 <div className="space-y-1.5">
                                   <div className="flex items-center justify-between text-xs text-zinc-400">
