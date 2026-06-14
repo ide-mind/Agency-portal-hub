@@ -207,7 +207,7 @@ export const ClientPortal: React.FC = () => {
     });
 
     const isDone = (status?: string) => ['complete', 'closed', 'done', 'finished'].includes(status?.toLowerCase() || '');
-    const isInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development'].includes(status?.toLowerCase() || '');
+    const isInProgress = (status?: string) => ['in progress', 'running', 'doing', 'active', 'development', 'in review', 'review'].includes(status?.toLowerCase() || '');
 
     // 1. Prefer "in progress"
     let activeRoot = roots.find(r => isInProgress(r.status.status));
@@ -223,7 +223,7 @@ export const ClientPortal: React.FC = () => {
     if (!activeRoot) return { count: 0, daysText: "Next 7 days" };
 
     const subtasks = childrenByParent.get(activeRoot.id) || [];
-    const count = subtasks.length;
+    const count = subtasks.filter(t => !isDone(t.status.status)).length;
     
     let daysText = "-";
     if (activeRoot.start_date && activeRoot.due_date) {
