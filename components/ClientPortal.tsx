@@ -192,7 +192,11 @@ export const ClientPortal: React.FC = () => {
   const currentPhaseData = useMemo(() => {
     if (!tasks || tasks.length === 0) return { count: 0, daysText: "Next 7 days" };
 
-    const getParentId = (t: ClickUpTask) => (t.parent && typeof t.parent === 'object' ? (t.parent as any).id : String(t.parent));
+    const getParentId = (t: ClickUpTask): string | null => {
+      if (!t.parent) return null;
+      if (typeof t.parent === 'object' && (t.parent as any).id) return (t.parent as any).id;
+      return String(t.parent);
+    };
     
     const tasksById = new Map<string, ClickUpTask>();
     const childrenByParent = new Map<string, ClickUpTask[]>();
